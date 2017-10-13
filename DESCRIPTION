@@ -1,9 +1,14 @@
 Package: rinmap
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: An R interface to inMAP
+Version: 0.1
 Date: 2017-10-12
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: person("Christine", "Choirat", email = "first.last@example.com", role = c("aut", "cre"))
+Maintainer: Christine Choirat <cchoirat@gmail.com>
+Description: rinmap provides an R interface to inMAP (Intervention Model for Air Pollution, http://spatialmodel.com/inmap/)
+URL: https://github.com/cchoirat/rinmap
+BugReports: https://github.com/cchoirat/rinmap/issues
+License: GPL-3
+Imports:
+    raster,
+    proj4
