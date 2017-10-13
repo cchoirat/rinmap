@@ -1,0 +1,25 @@
+InMAPData = "${evaldata}/InMAPData_v1.2.1.ncf"
+EmissionUnits = "tons/year"
+
+[OutputVariables]
+TotalPM25 = "TotalPM25"
+PM25Emiss = "PM25Emissions"
+BasePM25 = "BaselineTotalPM25"
+WindSpeed = "WindSpeed"
+
+[VarGrid]
+VariableGridXo= -2736000.0
+VariableGridYo= -2088000.0
+VariableGridDx= 48000.0
+VariableGridDy= 48000.0
+Xnests= [111, 2, 2, 3, 2, 2]
+Ynests= [84, 2, 2, 3, 2, 2]
+HiResLayers= 8
+GridProj= "+proj=lcc +lat_1=33.000000 +lat_2=45.000000 +lat_0=40.000000 +lon_0=-97.000000 +x_0=0 +y_0=0 +a=6370997.000000 +b=6370997.000000 +to_meter=1"
+PopDensityThreshold= 0.0055
+PopThreshold= 40000.0
+PopConcThreshold= 0.000000001
+PopGridColumn= "TotalPop"
+
+[SR]
+OutputFile = "isrm_v1.2.1.ncf"
