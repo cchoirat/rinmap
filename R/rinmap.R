@@ -9,14 +9,6 @@ create_input_shapefile <- function(input, shpout = "emis") {
   return()
 }
 
-create_toml_configuration_file <- function(input = "input", output = "output", file) {
-  cat('EmissionsShapefiles = ["', input, '/ptegu.shp"]\n',
-      'OutputFile = "', output, '/ptegu.shp"\n\n',
-      sep = "", file = file)
-  basic_toml_path <- system.file("basic.toml", package="rinmap")
-  system(paste("cat", file, basic_toml_path, " > ", file))
-}
-
 run_inmap <- function(input, output, save, srmat) {
   # TODO
   return()
