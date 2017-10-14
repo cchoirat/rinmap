@@ -9,17 +9,17 @@ create_input_shapefile <- function(input, shpout = "emis") {
   return()
 }
 
-run_inmap <- function(input, output, save, srmat) {
+run_inmap <- function(input, output, save) {
   # TODO
   return()
 }
 
-zip_code_linkage <- function(output, save, srmat, zctashape, crosswalk) {
+zip_code_linkage <- function(output, save, zctashape, crosswalk) {
   # TODO
   return()
 }
 
-rinmap <- function(input, output, save, srmat, zctashape, crosswalk) {
+rinmap <- function(input, output, save, zctashape, crosswalk) {
   # TODO
   return()
 }
