@@ -29,7 +29,15 @@ zip_code_linkage <- function(output_shapefile, zcta_shapefile, crosswalk_csv) {
   return(M)
 }
 
-rinmap <- function(input_csv, output_path, zcta_shapefile, crosswalk_csv) {
-  # TODO
-  return()
+rinmap <- function(input_csv, zcta_shapefile, crosswalk_csv) {
+  create_input_shapefile(input_csv, path = path)
+  setup_files_inmap_run(path = path)
+  setwd(path)
+  system("./run.sh")
+  system("chmod +x run.sh") # make run.sh executable
+  link <- zip_code_linkage(output_shapefile = "output/ptegu.shp",
+                           zcta_shapefile = zcta_shapefile,
+                           crosswalk_csv = crosswalk_csv)
+  setpath("..")
+  return(link)
 }
