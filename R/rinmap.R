@@ -29,7 +29,9 @@ zip_code_linkage <- function(output_shapefile, zcta_shapefile, crosswalk_csv) {
   return(M)
 }
 
-rinmap <- function(input_csv, zcta_shapefile, crosswalk_csv) {
+rinmap <- function(input_csv,
+                   zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
+                   crosswalk_csv = "~/shared_space/ci3_nsaph/software/inmap/crosswalk/Zip_to_ZCTA_crosswalk_2015_JSI.csv") {
   create_input_shapefile(input_csv, path = path)
   setup_files_inmap_run(path = path)
   setwd(path)
