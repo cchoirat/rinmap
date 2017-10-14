@@ -1,4 +1,7 @@
-InMAPData = "${evaldata}/InMAPData_v1.2.1.ncf"
+EmissionsShapefiles = ["emis/ptegu.shp"]
+OutputFile = "output/ptegu.shp"
+
+InMAPData = "InMAPData_v1.2.1.ncf"
 EmissionUnits = "tons/year"
 
 [OutputVariables]
@@ -22,4 +25,5 @@ PopConcThreshold= 0.000000001
 PopGridColumn= "TotalPop"
 
 [SR]
-OutputFile = "isrm_v1.2.1.ncf"
+OutputFile = "../isrm_v1.2.1.ncf"
+
