@@ -25,5 +25,4 @@ PopConcThreshold= 0.000000001
 PopGridColumn= "TotalPop"
 
 [SR]
-OutputFile = "../isrm_v1.2.1.ncf"
-
+OutputFile = "/nfs/bigdata_nobackup_ci3/n/ci3_nsaph/software/inmap/isrm_v1.2.1.ncf"

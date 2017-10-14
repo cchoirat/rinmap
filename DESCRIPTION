@@ -9,7 +9,7 @@ Description: rinmap provides an R interface to inMAP (Intervention Model for Air
 URL: https://github.com/cchoirat/rinmap
 BugReports: https://github.com/cchoirat/rinmap/issues
 License: GPL-3
-Imports:
+Depends:
     raster,
     proj4,
     sp
