@@ -38,6 +38,6 @@ rinmap <- function(input_csv, zcta_shapefile, crosswalk_csv) {
   link <- zip_code_linkage(output_shapefile = "output/ptegu.shp",
                            zcta_shapefile = zcta_shapefile,
                            crosswalk_csv = crosswalk_csv)
-  setpath("..")
+  setwd("..")
   return(link)
 }
