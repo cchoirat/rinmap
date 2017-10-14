@@ -11,4 +11,5 @@ BugReports: https://github.com/cchoirat/rinmap/issues
 License: GPL-3
 Imports:
     raster,
-    proj4
+    proj4,
+    sp
