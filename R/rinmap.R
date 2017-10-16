@@ -25,7 +25,7 @@ zip_code_linkage <- function(output_shapefile, zcta_shapefile, crosswalk_csv) {
   names(O) <- c("ZCTA", "PM25inMAP")
   O$ZCTA <- as.numeric(O$ZCTA) # to merge on zcta ID
   crosswalk <- read.csv(crosswalk_csv)
-  M <- merge(O, crosswalk, by = "ZCTA")
+  M <- merge(O, crosswalk, by = "ZCTA", all.y = TRUE)
   return(M)
 }
 
