@@ -6,6 +6,12 @@ create_input_shapefile <- function(input_csv, path) {
   coordinates(input) <- ~Longitude + Latitude
   crs(input) <- CRS("+proj=longlat +datum=NAD83")
   input <- spTransform(input, proj_inmap)
+  if(file.exists(file.path(path, "emis/ptegu.shp"))) {
+    print(paste("Removing shapefile:",list))
+    list <- list.files(path=file.path(path,"emis"),pattern="^ptegu.",full.names=T)
+    invisible(file.remove(list))
+  }
+  print(paste("Creating shapefiles"))
   shapefile(input, file.path(path, "emis/ptegu.shp"))
 }
 
