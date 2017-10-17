@@ -6,13 +6,7 @@ create_input_shapefile <- function(input_csv, path) {
   coordinates(input) <- ~Longitude + Latitude
   crs(input) <- CRS("+proj=longlat +datum=NAD83")
   input <- spTransform(input, proj_inmap)
-  if(file.exists(file.path(path, "emis/ptegu.shp"))) {
-    print(paste("Removing shapefile:",list))
-    list <- list.files(path=file.path(path,"emis"),pattern="^ptegu.",full.names=T)
-    invisible(file.remove(list))
-  }
-  print(paste("Creating shapefiles"))
-  shapefile(input, file.path(path, "emis/ptegu.shp"))
+  shapefile(input, file.path(path, "emis/ptegu.shp"), overwrite = TRUE)
 }
 
 setup_files_inmap_run <- function(path) {
@@ -30,7 +24,7 @@ zip_code_linkage <- function(output_shapefile, zcta_shapefile, crosswalk_csv) {
   O <- cbind(zcta@data[["ZCTA5CE10"]], o)
   names(O) <- c("ZCTA", "PM25inMAP")
   crosswalk <- read.csv(crosswalk_csv)
-  crosswalk$ZCTA <- formatC(crosswalk$ZCTA,width=5,format='d',flag='0') # to merge on zcta ID
+  crosswalk$ZCTA <- formatC(crosswalk$ZCTA, width = 5, format ="d", flag = "0") # to merge on zcta ID
   M <- merge(O, crosswalk, by = "ZCTA", all.y = TRUE)
   return(M)
 }
