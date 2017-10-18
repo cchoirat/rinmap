@@ -20,7 +20,6 @@ NULL
 #'   \item Velocity (in meters per second)
 #'   \item Temp (in Kelvin)
 #' }
-#' 
 #' @param path Folder where the shaper is going to be saved
 #'             (in a subfolder, as "emis/ptegu.shp")
 #' @return This function does not return anything and is used for its side-effects.
@@ -28,11 +27,12 @@ create_input_shapefile <- function(input_csv, path) {
   input <- read.csv(input_csv)
   dir.create(path = path, showWarnings = FALSE)
   dir.create(path = file.path(path, "emis"), showWarnings = FALSE)
+  unlink(file.path(path, "emis", "*")) # remove all files from 'emis' folder
   proj_inmap <- "+proj=lcc +lat_1=33 +lat_2=45 +lat_0=40 +lon_0=-97 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"
   coordinates(input) <- ~Longitude + Latitude
   crs(input) <- CRS("+proj=longlat +datum=NAD83")
   input <- spTransform(input, proj_inmap)
-  shapefile(input, file.path(path, "emis/ptegu.shp"), overwrite = TRUE)
+  shapefile(input, file.path(path, "emis/ptegu.shp"))
 }
 
 #' Copy inMAP setup files to the run folder
