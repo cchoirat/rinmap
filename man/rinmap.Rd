@@ -9,8 +9,3 @@
 The rinmap package provides an R interface to inMAP
 (Intervention Model for Air Pollution, \url{http://spatialmodel.com/inmap/}).
 }
-\section{Foo functions}{
-
-The foo functions ...
-}
-
