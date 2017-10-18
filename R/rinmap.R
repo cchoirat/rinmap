@@ -32,7 +32,7 @@ create_input_shapefile <- function(input_csv, path) {
   coordinates(input) <- ~Longitude + Latitude
   crs(input) <- CRS("+proj=longlat +datum=NAD83")
   input <- spTransform(input, proj_inmap)
-  shapefile(input, file.path(path, "emis/ptegu.shp"), overwrite = TRUE)
+  writeSpatialShape(input, file.path(path, "emis/ptegu"))
 }
 
 #' Copy inMAP setup files to the run folder
