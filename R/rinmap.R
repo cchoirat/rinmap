@@ -1,3 +1,32 @@
+#' rinmap: An R interface to inMAP.
+#'
+#' The rinmap package provides an R interface to inMAP
+#' (Intervention Model for Air Pollution, \url{http://spatialmodel.com/inmap/}).
+#' 
+#' @section Foo functions:
+#' The foo functions ...
+#'
+#' @docType package
+#' @name rinmap
+NULL
+
+#' Convert csv file to inMAP-compatible shapefile
+#' 
+#' \code{create_input_shapefile} saves an inMAP-compatible shapefile to a specified directory.
+#' 
+#' @param input_csv Filename of a csv file to be read and converted to a shapefile format.
+#' Expected variables are:
+#' #' \enumerate{
+#'   \item Latitude, Longitude (in NAD83 CRS)
+#'   \item SOx, CO2, NOx (in tons per year)
+#'   \item Height, Diam(in meters)
+#'   \item Velocity (in meters per second)
+#'   \item Temp (in Kelvin)
+#' }
+#' 
+#' @param path Folder where the shaper is going to be saved
+#'             (in a subfolder, as "emis/ptegu.shp")
+#' @return This function does not return anything and is used for its side-effects.
 create_input_shapefile <- function(input_csv, path) {
   input <- read.csv(input_csv)
   dir.create(path = path, showWarnings = FALSE)
@@ -9,12 +38,30 @@ create_input_shapefile <- function(input_csv, path) {
   shapefile(input, file.path(path, "emis/ptegu.shp"), overwrite = TRUE)
 }
 
+#' Copy inMAP setup files to the run folder
+#' 
+#' \code{setup_files_inmap_run} copies \code{inmap.toml} and \code{run.sh} to a specified
+#' folder (typically the folder where inMAP is going to be run).
+#' 
+#' @param path Filepath where \code{inmap.toml} and \code{run.sh} are copied.
+#' 
+#' @return This function does not return anything and is used for its side-effects.
 setup_files_inmap_run <- function(path) {
   file.copy(from = system.file("inmap.toml", package = "rinmap"), to = path, overwrite = TRUE)
   file.copy(from = system.file("run.sh", package = "rinmap"), to = path, overwrite = TRUE)
   dir.create(path = file.path(path, "emis"), showWarnings = FALSE)
 }
 
+#' Link inMAP output at the ZIP code level.
+#' 
+#' \code{zip_code_linkage} performs spatial linkage of an inMAP output shapefile
+#' at the ZIP code level.
+#' 
+#' @param output_shapefile An inMAP output shapefile
+#' @param zcta_shapefile A ZCTA shapefile
+#' @param crosswalk_csv A crosswalk csv file to convert ZCTA to ZIP
+#' 
+#' @return A data frame of average PM2.5 values at the ZIP code level.
 zip_code_linkage <- function(output_shapefile, zcta_shapefile, crosswalk_csv) {
   zcta <- shapefile(zcta_shapefile)
   result <- shapefile(output_shapefile)
@@ -29,9 +76,18 @@ zip_code_linkage <- function(output_shapefile, zcta_shapefile, crosswalk_csv) {
   return(M)
 }
 
-rinmap <- function(input_csv,
-                   zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
-                   crosswalk_csv = "~/shared_space/ci3_nsaph/software/inmap/crosswalk/Zip_to_ZCTA_crosswalk_2015_JSI.csv") {
+#' Call inMAP and save ZIP code level average PM2.5
+#' 
+#' \code{run_inmap} calls the inMAP executable.  Paths are hard-coded in file \code{inmap.toml}.
+#' 
+#' @param input_csv Filename of a csv file to be read and converted to a shapefile format.
+#' @param zcta_shapefile A ZCTA shapefile (default value is hard-coded cluster path)
+#' @param crosswalk_csv A crosswalk csv file to convert ZCTA to ZIP (default value is hard-coded cluster path)
+#' 
+#' @return A data frame with ZIP code level average PM2.5 values.
+run_inmap <- function(input_csv,
+                      zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
+                      crosswalk_csv = "~/shared_space/ci3_nsaph/software/inmap/crosswalk/Zip_to_ZCTA_crosswalk_2015_JSI.csv") {
   create_input_shapefile(input_csv, path = path)
   setup_files_inmap_run(path = path)
   setwd(path)

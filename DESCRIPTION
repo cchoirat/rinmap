@@ -2,7 +2,7 @@ Package: rinmap
 Type: Package
 Title: An R interface to inMAP
 Version: 0.1
-Date: 2017-10-13
+Date: 2017-10-17
 Author: person("Christine", "Choirat", email = "cchoirat@gmail.com", role = c("aut", "cre"))
 Maintainer: Christine Choirat <cchoirat@gmail.com>
 Description: rinmap provides an R interface to inMAP (Intervention Model for Air Pollution, http://spatialmodel.com/inmap/)
@@ -13,3 +13,4 @@ Depends:
     raster,
     proj4,
     sp
+RoxygenNote: 6.0.1
