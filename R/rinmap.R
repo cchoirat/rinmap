@@ -130,7 +130,7 @@ create_input_unit_one_by_one <- function(input_csv, path = basename(input_csv)) 
   for (i in 1:length(unit)) {
     d <- subset(input, ID == unit[i])
     write.csv(d, file.path(path, paste(basename(input_csv),
-                                       "unit_one_by_one", i,".csv", sep = "_")))
+                                       "unit_one_by_one", unit[i],".csv", sep = "_")))
   }
 }
 
@@ -150,7 +150,7 @@ create_input_unit_all_but_one <- function(input_csv, path = basename(input_csv))
   for (i in 1:length(unit)) {
     d <- subset(input, ID != unit[i])
     write.csv(d, file.path(path, paste(basename(input_csv),
-                                       "unit_all_but_one", i,".csv", sep = "_")))
+                                       "unit_all_but_one", unit[i],".csv", sep = "_")))
   }
 }
 
@@ -170,7 +170,7 @@ create_input_facility_one_by_one <- function(input_csv, path = basename(input_cs
   for (i in 1:length(facility)) {
     d <- subset(input, Facility == facility[i])
     write.csv(d, file.path(path, paste(basename(input_csv),
-                                       "facility_one_by_one", i,".csv", sep = "_")))
+                                       "facility_one_by_one", facility[i],".csv", sep = "_")))
   }
 }
 
@@ -190,7 +190,7 @@ create_input_facility_all_but_one <- function(input_csv, path = basename(input_c
   for (i in 1:length(facility)) {
     d <- subset(input, Facility != facility[i])
     write.csv(d, file.path(path, paste(basename(input_csv),
-                                       "facility_all_but_one", i,".csv", sep = "_")))
+                                       "facility_all_but_one", facility[i],".csv", sep = "_")))
   }
 }
 
