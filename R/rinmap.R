@@ -20,7 +20,7 @@ NULL
 #'   \item Velocity (in meters per second)
 #'   \item Temp (in Kelvin)
 #' }
-#' @param path Folder where the shaper is going to be saved
+#' @param path Folder where the shape is saved
 #'             (in a subfolder, as "emis/ptegu.shp")
 #' @return This function does not return anything and is used for its side-effects.
 create_input_shapefile <- function(input_csv, path) {
@@ -96,3 +96,101 @@ run_inmap <- function(input_csv,
   setwd("..")
   return(link)
 }
+
+#' Split facility-unit information from a input csv filename
+#' 
+#' \code{add_facility_unit_variable} saves an inMAP-compatible shapefile 
+#' to a specified directory.
+#' 
+#' @param input_csv Filename of a csv file with ID variable
+#' formatted as Facility-Unit
+#' 
+#' @return A data frame that adds Facility and Utility variable to the CSV file
+add_facility_unit_variable <- function(input_csv) {
+  input <- read.csv(input_csv)
+  fu <- tidyr::separate(input, ID, into = c("Facility", "Unit"), sep = "-")
+  input$Facility <- fu$Facility
+  input$Unit <- fu$Unit
+  return(input)
+}
+
+#' Saves csv files taking one unit at a time
+#' 
+#' \code{create_input_unit_one_by_one} saves one file per unit as csv files
+#' to a specified directory.
+#' 
+#' @param input_csv Filename of a csv file to be read and converted to a shapefile format.
+#' @param path Folder where the csv files are saved
+#' 
+#' @return This function does not return anything and is used for its side-effects.
+create_input_unit_one_by_one <- function(input_csv, path = basename(input_csv)) {
+  input <- add_facility_unit_variable(input_csv)
+  unit <- unique(input$ID)
+  dir.create(path = path, showWarnings = FALSE)
+  for (i in 1:length(unit)) {
+    d <- subset(input, ID == unit[i])
+    write.csv(d, file.path(path, paste(basename(input_csv),
+                                       "unit_one_by_one", i,".csv", sep = "_")))
+  }
+}
+
+#' Saves csv files taking one unit at a time
+#' 
+#' \code{create_input_unit_all_but_one} saves one file taking all units but one as csv files
+#' to a specified directory.
+#' 
+#' @param input_csv Filename of a csv file to be read and converted to a shapefile format.
+#' @param path Folder where the csv files are saved
+#' 
+#' @return This function does not return anything and is used for its side-effects.
+create_input_unit_all_but_one <- function(input_csv, path = basename(input_csv)) {
+  input <- add_facility_unit_variable(input_csv)
+  unit <- unique(input$ID)
+  dir.create(path = path, showWarnings = FALSE)
+  for (i in 1:length(unit)) {
+    d <- subset(input, ID != unit[i])
+    write.csv(d, file.path(path, paste(basename(input_csv),
+                                       "unit_all_but_one", i,".csv", sep = "_")))
+  }
+}
+
+#' Saves csv files taking one unit at a time
+#' 
+#' \code{create_input_facility_one_by_one} saves one file per facility as csv files
+#' to a specified directory.
+#' 
+#' @param input_csv Filename of a csv file to be read and converted to a shapefile format.
+#' @param path Folder where the csv files are saved
+#' 
+#' @return This function does not return anything and is used for its side-effects.
+create_input_facility_one_by_one <- function(input_csv, path = basename(input_csv)) {
+  input <- add_facility_unit_variable(input_csv)
+  facility <- unique(input$Facility)
+  dir.create(path = path, showWarnings = FALSE)
+  for (i in 1:length(facility)) {
+    d <- subset(input, Facility == facility[i])
+    write.csv(d, file.path(path, paste(basename(input_csv),
+                                       "facility_one_by_one", i,".csv", sep = "_")))
+  }
+}
+
+#' Saves csv files taking one unit at a time
+#' 
+#' \code{create_input_facility_all_but_one} saves one file taking all facilities but one as csv files
+#' to a specified directory.
+#' 
+#' @param input_csv Filename of a csv file to be read and converted to a shapefile format.
+#' @param path Folder where the csv files are saved
+#' 
+#' @return This function does not return anything and is used for its side-effects.
+create_input_facility_all_but_one <- function(input_csv, path = basename(input_csv)) {
+  input <- add_facility_unit_variable(input_csv)
+  facility <- unique(input$Facility)
+  dir.create(path = path, showWarnings = FALSE)
+  for (i in 1:length(facility)) {
+    d <- subset(input, Facility != facility[i])
+    write.csv(d, file.path(path, paste(basename(input_csv),
+                                       "facility_all_but_one", i,".csv", sep = "_")))
+  }
+}
+

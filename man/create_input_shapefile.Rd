@@ -17,7 +17,7 @@ Expected variables are:
   \item Temp (in Kelvin)
 }}
 
-\item{path}{Folder where the shaper is going to be saved
+\item{path}{Folder where the shape is saved
 (in a subfolder, as "emis/ptegu.shp")}
 }
 \value{
