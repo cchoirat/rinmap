@@ -14,6 +14,6 @@ formatted as Facility-Unit}
 A data frame that adds Facility and Utility variable to the CSV file
 }
 \description{
-\code{add_facility_unit_variable} saves an inMAP-compatible shapefile 
-to a specified directory.
+\code{add_facility_unit_variable} adds facility-unit information
+from a input csv filename.
 }

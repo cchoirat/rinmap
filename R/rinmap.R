@@ -99,8 +99,8 @@ run_inmap <- function(input_csv,
 
 #' Split facility-unit information from a input csv filename
 #' 
-#' \code{add_facility_unit_variable} saves an inMAP-compatible shapefile 
-#' to a specified directory.
+#' \code{add_facility_unit_variable} adds facility-unit information
+#' from a input csv filename.
 #' 
 #' @param input_csv Filename of a csv file with ID variable
 #' formatted as Facility-Unit
