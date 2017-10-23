@@ -13,5 +13,10 @@ Depends:
     raster,
     proj4,
     sp,
-    tidyr
+    tidyr,
+Suggests:
+    dplyr,
+    ggplot2,
+    parallel,
+    sf
 RoxygenNote: 6.0.1
