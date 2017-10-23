@@ -194,3 +194,96 @@ create_input_facility_all_but_one <- function(input_csv, path = basename(input_c
   }
 }
 
+#' Combine zipcode-linked inMAP output into single data object and link with spatial
+#' data for plotting.
+#' 
+#' \code{combine_inmap_output} uses spatial linkages of an inMAP outputs to combine output
+#' multiple runs. Employs the sf package.
+#' 
+#' @param path.out Directory that houses InMAP output csv files
+#' @param zcta_shapefile A ZCTA shapefile
+#' @param pattern A text or regex pattern common to all InMAP output you wish to be joined
+#' 
+#' @return A data frame of average PM2.5 values at the ZIP code level.
+combine_inmap_output <- function(path.out,
+					   			 zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
+					   			 pattern){
+	#list files for import, read in files
+	files = list.files(path.out,full.names=T)
+	names.f = gsub('_linked_zip.csv','', list.files(path.out,full.names=F))
+	names(files) <- names.f
+	if (!missing(pattern)) files = files[grep(pattern,names(files))]
+	im <- lapply(seq_along(files),function(x,f,n) {	fin <- fread(f[x])[,V1 := NULL]
+													setnames(fin,'PM25inMAP', n[x])
+													fin},files,names(files))
+	
+	#reduce list to single data table
+	im <- Reduce(function(...) merge(..., all = TRUE, by = c("ZCTA","ZIP","PO_NAME","STATE","ZIP_TYPE")), im)
+
+	#convert a ZIP code from 3-digit to 5-digit format
+	im[,ZIP := formatC(unlist(ZIP), width = 5, format = "d", flag = "0")]
+	
+	#join with spatial zip data
+	zips <- st_read(zcta_shapefile)
+	zips$GEOID10 <- as.character(zips$GEOID10)
+	im_j <- left_join(im,zips,by=c('ZIP' = 'GEOID10'))
+		
+	return(im_j)
+}
+
+
+#' Using zipcode-linked inMAP output from \code{combine_inmap_output}, plot change in InMAP impacts
+#' at zip code level compared to base year.
+#' 
+#' \code{combine_inmap_output} uses spatial linkages of an inMAP outputs to combine output
+#' multiple runs. Employs the sf, ggplot2, and parallel packages.
+#' 
+#' @param read_inmap_d Directory that houses InMAP output csv files
+#' @param legend_lims Legend limits for zip code fill
+#' @param path.plot Output directory for plots. If it does not exist, it will be created
+#' 
+#' @return A list of ggplot objects.
+              
+plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots'){
+	#create directory if it does not exist
+	if (!file.exists(path.plot)) dir.create(path.plot)
+	
+	#extract names from combined data table/sf object
+	names.f <- names(read_inmap_d)[-grep(c('ZCTA|ZIP|PO_NAME|STATE|ZIP_TYPE|ZCTA5CE10|AFFGEOID10|ALAND10|AWATER10|geometry'),names(read_inmap_d))]
+	
+	#read in USA and state shapes
+	usa.states <- map_data("state")
+	cl <- makeCluster(detectCores() - 1)
+	clusterExport(cl,c( 'data.table','ggplot','aes','theme_bw','geom_sf',
+						'labs','geom_polygon','coord_sf','scale_color_viridis',
+						'scale_fill_viridis','theme','element_text','element_rect',
+						'unit','element_blank','ggsave','setnames','squish'))
+	
+	#create plotting object
+	ggplotter <- function(x,im_j,n,usa.states,ll){
+		x1 <- data.table(im_j)[,c('ZIP',n[x],'geometry'),with=F]
+		setnames(x1,n[x],'PM')
+
+		gg <- ggplot(data = x1, aes(fill = -PM,color= -PM)) + 
+					theme_bw() + labs(title=paste('InMAP exposure change - ',n[x],sep='')) +
+					geom_sf(size=0.05) +
+					geom_polygon(data= usa.states, aes(x = long, y = lat, group = group),
+								 fill = NA, colour = "grey50",size=.25) + 
+					coord_sf(xlim = c(-123,-69),ylim=c(24,50),datum=NA) + 
+					scale_color_viridis(discrete=F,option='D',limits= ll,oob=squish) +
+					scale_fill_viridis(discrete=F,option='D',limits= ll,oob=squish) + 
+					theme(legend.position = c(.25,.15),	axis.text=element_blank(), 
+						axis.title.x = element_blank(),axis.title.y = element_blank(),legend.title=element_blank(),
+						axis.title=element_text(size=24),legend.text=element_text(size = 14),
+						legend.background=element_rect(fill='transparent'),strip.text=element_text(size=16),
+						legend.key.size = unit(.05,'npc'),plot.title = element_text(size = 16,hjust = 0.5),
+						legend.direction = 'horizontal',strip.background=element_rect(fill='white'))
+		invisible(ggsave(file.path('.',path.plot,paste('plot_',n[x],'.png',sep='')), 	
+						gg,width=13.5,height=7.79,unit='in'))
+		return(gg)
+	}
+	out <- parLapply(cl,seq_along(names.f),ggplotter, read_inmap_d,names.f,usa.states,ll=legend_lims) #
+	stopCluster(cl)
+	return(out)
+}
+               
