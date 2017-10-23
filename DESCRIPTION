@@ -14,9 +14,9 @@ Depends:
     proj4,
     sp,
     tidyr,
+    dplyr,
     data.table
 Suggests:
-    dplyr,
     ggplot2,
     parallel,
     sf
