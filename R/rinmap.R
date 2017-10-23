@@ -198,7 +198,7 @@ create_input_facility_all_but_one <- function(input_csv, path = basename(input_c
 #' data for plotting.
 #' 
 #' \code{combine_inmap_output} uses spatial linkages of an inMAP outputs to combine output
-#' multiple runs. Employs the sf package.
+#' multiple runs. Employs the sf package to link with spatial data if it is installed.
 #' 
 #' @param path.out Directory that houses InMAP output csv files
 #' @param zcta_shapefile A ZCTA shapefile
@@ -239,7 +239,7 @@ combine_inmap_output <- function(path.out,
 #' at zip code level compared to base year.
 #' 
 #' \code{combine_inmap_output} uses spatial linkages of an inMAP outputs to combine output
-#' multiple runs. Employs the sf, ggplot2, and parallel packages.
+#' multiple runs. Requires the sf, ggplot2, and parallel packages.
 #' 
 #' @param read_inmap_d Directory that houses InMAP output csv files
 #' @param legend_lims Legend limits for zip code fill
