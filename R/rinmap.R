@@ -206,16 +206,19 @@ create_input_facility_all_but_one <- function(input_csv, path = basename(input_c
 #' 
 #' @return A data frame of average PM2.5 values at the ZIP code level.
 combine_inmap_output <- function(path.out,
-					   			 zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
-					   			 pattern){
+				 zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
+				 pattern){
+	#check if required packages are installed
+	try(if(F %in% (c('sf','dplyr') %in% (.packages()))) stop("Required package missing! (need sf,dplyr)"))
+
 	#list files for import, read in files
 	files = list.files(path.out,full.names=T)
 	names.f = gsub('_linked_zip.csv','', list.files(path.out,full.names=F))
 	names(files) <- names.f
 	if (!missing(pattern)) files = files[grep(pattern,names(files))]
 	im <- lapply(seq_along(files),function(x,f,n) {	fin <- fread(f[x])[,V1 := NULL]
-													setnames(fin,'PM25inMAP', n[x])
-													fin},files,names(files))
+							       setnames(fin,'PM25inMAP', n[x])
+							       fin},files,names(files))
 	
 	#reduce list to single data table
 	im <- Reduce(function(...) merge(..., all = TRUE, by = c("ZCTA","ZIP","PO_NAME","STATE","ZIP_TYPE")), im)
@@ -246,6 +249,9 @@ combine_inmap_output <- function(path.out,
 #' @return A list of ggplot objects.
               
 plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',cores=1){
+	#check if required packages are installed
+	try(if(F %in% (c('sf','parallel','ggplot2') %in% (.packages()))) stop("Required package missing! (need sf,parallel,ggplot2)"))
+
 	#create directory if it does not exist
 	if (!file.exists(path.plot)) dir.create(path.plot)
 	
