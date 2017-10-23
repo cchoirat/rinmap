@@ -13,5 +13,8 @@ Depends:
     raster,
     proj4,
     sp,
-    tidyr
+    tidyr,
+    dplyr,
+    sf,
+    ggplot2
 RoxygenNote: 6.0.1
