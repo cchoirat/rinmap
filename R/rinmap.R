@@ -241,10 +241,11 @@ combine_inmap_output <- function(path.out,
 #' @param read_inmap_d Directory that houses InMAP output csv files
 #' @param legend_lims Legend limits for zip code fill
 #' @param path.plot Output directory for plots. If it does not exist, it will be created
+#' @param cores Cores available to create plots. Defaults to one
 #' 
 #' @return A list of ggplot objects.
               
-plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots'){
+plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',cores=1){
 	#create directory if it does not exist
 	if (!file.exists(path.plot)) dir.create(path.plot)
 	
@@ -253,7 +254,7 @@ plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots')
 	
 	#read in USA and state shapes
 	usa.states <- map_data("state")
-	cl <- makeCluster(detectCores() - 1)
+	cl <- makeCluster(cores)
 	clusterExport(cl,c( 'data.table','ggplot','aes','theme_bw','geom_sf',
 						'labs','geom_polygon','coord_sf','scale_color_viridis',
 						'scale_fill_viridis','theme','element_text','element_rect',
