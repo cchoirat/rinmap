@@ -249,7 +249,7 @@ combine_inmap_output <- function(path.out,
 #' @return A list of ggplot objects.
 plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',cores=1){
 	#check if required packages are installed
-	try(if(F %in% (c('sf','parallel','ggplot2','viridis','scales') %in% (.packages()))) stop("Required package missing! (need sf,parallel,ggplot2,viridis,scales)"))
+	if(F %in% (c('sf','parallel','ggplot2','viridis','scales') %in% (.packages()))) {stop("Required package missing! (need sf,parallel,ggplot2,viridis,scales)")}
 
 	#create directory if it does not exist
 	if (!file.exists(path.plot)) dir.create(path.plot)
