@@ -247,10 +247,9 @@ combine_inmap_output <- function(path.out,
 #' @param cores Cores available to create plots. Defaults to one
 #' 
 #' @return A list of ggplot objects.
-              
 plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',cores=1){
 	#check if required packages are installed
-	try(if(F %in% (c('sf','parallel','ggplot2') %in% (.packages()))) stop("Required package missing! (need sf,parallel,ggplot2)"))
+	try(if(F %in% (c('sf','parallel','ggplot2','viridis','scales') %in% (.packages()))) stop("Required package missing! (need sf,parallel,ggplot2,viridis,scales)"))
 
 	#create directory if it does not exist
 	if (!file.exists(path.plot)) dir.create(path.plot)
@@ -277,8 +276,8 @@ plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',
 					geom_polygon(data= usa.states, aes(x = long, y = lat, group = group),
 								 fill = NA, colour = "grey50",size=.25) + 
 					coord_sf(xlim = c(-123,-69),ylim=c(24,50),datum=NA) + 
-					scale_color_viridis(discrete=F,option='D',limits= ll,oob=squish) +
-					scale_fill_viridis(discrete=F,option='D',limits= ll,oob=squish) + 
+					scale_color_viridis(discrete=F,option='D',limits= ll,oob=squish,direction=-1) +
+					scale_fill_viridis(discrete=F,option='D',limits= ll,oob=squish,direction=-1) + 
 					theme(legend.position = c(.25,.15),	axis.text=element_blank(), 
 						axis.title.x = element_blank(),axis.title.y = element_blank(),legend.title=element_blank(),
 						axis.title=element_text(size=24),legend.text=element_text(size = 14),
@@ -293,4 +292,4 @@ plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',
 	stopCluster(cl)
 	return(out)
 }
-               
+             
