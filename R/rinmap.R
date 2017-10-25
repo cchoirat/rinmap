@@ -205,11 +205,9 @@ create_input_facility_all_but_one <- function(input_csv, path = basename(input_c
 #' @param pattern A text or regex pattern common to all InMAP output you wish to be joined
 #' 
 #' @return A data frame of average PM2.5 values at the ZIP code level.
-combine_inmap_output <- function(path.out,
-				 zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
-				 pattern){
+combine_inmap_output <- function(path.out, pattern){
 	#check if required packages are installed
-	try(if(F %in% (c('sf','dplyr') %in% (.packages()))) stop("Required package missing! (need sf,dplyr)"))
+	try(if(F %in% (c('dplyr') %in% (.packages()))) stop("Required package missing! (need dplyr)"))
 
 	#list files for import, read in files
 	files = list.files(path.out,full.names=T)
@@ -225,12 +223,7 @@ combine_inmap_output <- function(path.out,
 
 	#convert a ZIP code from 3-digit to 5-digit format
 	im[,ZIP := formatC(unlist(ZIP), width = 5, format = "d", flag = "0")]
-	
-	#join with spatial zip data
-	zips <- st_read(zcta_shapefile)
-	zips$GEOID10 <- as.character(zips$GEOID10)
-	im_j <- left_join(im,zips,by=c('ZIP' = 'GEOID10'))
-		
+			
 	return(im_j)
 }
 
@@ -247,28 +240,35 @@ combine_inmap_output <- function(path.out,
 #' @param cores Cores available to create plots. Defaults to one
 #' 
 #' @return A list of ggplot objects.
-plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',cores=1){
+plot_inmap <- function(read_inmap_d,
+   		       zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
+		       legend_lims=c(-5,5),path.plot='InMAP_plots',cores=1){
 	#check if required packages are installed
 	if(F %in% (c('sf','parallel','ggplot2','viridis','scales') %in% (.packages()))) {stop("Required package missing! (need sf,parallel,ggplot2,viridis,scales)")}
 
 	#create directory if it does not exist
 	if (!file.exists(path.plot)) dir.create(path.plot)
 	
+	#join with spatial zip data
+	zips <- st_read(zcta_shapefile)
+	zips$GEOID10 <- as.character(zips$GEOID10)
+	im_j <- left_join(im,zips,by=c('ZIP' = 'GEOID10'))
+
 	#extract names from combined data table/sf object
 	names.f <- names(read_inmap_d)[-grep(c('ZCTA|ZIP|PO_NAME|STATE|ZIP_TYPE|ZCTA5CE10|AFFGEOID10|ALAND10|AWATER10|geometry'),names(read_inmap_d))]
 	
 	#read in USA and state shapes
-	usa.states <- map_data("state")
 	cl <- makeCluster(cores)
-	clusterExport(cl,c( 'data.table','ggplot','aes','theme_bw','geom_sf',
+	clusterExport(cl,c( 'data.table','ggplot','aes','theme_bw','geom_sf','map_data',
 						'labs','geom_polygon','coord_sf','scale_color_viridis',
 						'scale_fill_viridis','theme','element_text','element_rect',
 						'unit','element_blank','ggsave','setnames','squish'))
 	
 	#create plotting object
-	ggplotter <- function(x,im_j,n,usa.states,ll){
+	ggplotter <- function(x,im_j,n,ll){
 		x1 <- data.table(im_j)[,c('ZIP',n[x],'geometry'),with=F]
 		setnames(x1,n[x],'PM')
+		usa.states <- map_data("state")
 
 		gg <- ggplot(data = x1, aes(fill = -PM,color= -PM)) + 
 					theme_bw() + labs(title=paste('InMAP exposure change - ',n[x],sep='')) +
@@ -288,7 +288,7 @@ plot_inmap <- function(read_inmap_d,legend_lims=c(-5,5),path.plot='InMAP_plots',
 						gg,width=13.5,height=7.79,unit='in'))
 		return(gg)
 	}
-	out <- parLapply(cl,seq_along(names.f),ggplotter, read_inmap_d,names.f,usa.states,ll=legend_lims) #
+	out <- parLapply(cl,seq_along(names.f),ggplotter, read_inmap_d,names.f,ll=legend_lims) #
 	stopCluster(cl)
 	return(out)
 }
