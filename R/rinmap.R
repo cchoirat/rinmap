@@ -205,26 +205,27 @@ create_input_facility_all_but_one <- function(input_csv, path = basename(input_c
 #' @param pattern A text or regex pattern common to all InMAP output you wish to be joined
 #' 
 #' @return A data frame of average PM2.5 values at the ZIP code level.
-combine_inmap_output <- function(path.out, pattern){
-	#check if required packages are installed
-	try(if(F %in% (c('dplyr') %in% (.packages()))) stop("Required package missing! (need dplyr)"))
+combine_inmap_output <- function(path.out, pattern = NULL){
 
 	#list files for import, read in files
 	files = list.files(path.out,full.names=T)
-	names.f = gsub('_linked_zip.csv','', list.files(path.out,full.names=F))
+	names.f = gsub(paste(pattern,'_linked_zip.csv',sep='|'),'', list.files(path.out,full.names=F))
 	names(files) <- names.f
-	if (!missing(pattern)) files = files[grep(pattern,names(files))]
-	im <- lapply(seq_along(files),function(x,f,n) {	fin <- fread(f[x])[,V1 := NULL]
-							       setnames(fin,'PM25inMAP', n[x])
-							       fin},files,names(files))
+	if (!is.null(pattern)) files = files[grep(pattern,files)]
+	if (length(files) == 0) stop(("No matching files in path.out!"))
+
+	im <- lapply(seq_along(files), function(x,f,n) {fin <- fread(f[x])[, V1 := NULL]
+							setnames(fin, 'PM25inMAP', n[x])
+							return(fin)}, 
+		     					files, names(files))
 	
 	#reduce list to single data table
 	im <- Reduce(function(...) merge(..., all = TRUE, by = c("ZCTA","ZIP","PO_NAME","STATE","ZIP_TYPE")), im)
 
 	#convert a ZIP code from 3-digit to 5-digit format
-	im[,ZIP := formatC(unlist(ZIP), width = 5, format = "d", flag = "0")]
+	im$ZIP <- formatC(im$ZIP, width = 5, format = "d", flag = "0")
 			
-	return(im_j)
+	return(im)
 }
 
 
