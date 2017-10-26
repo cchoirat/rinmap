@@ -17,8 +17,7 @@ Depends:
     raster,
     proj4,
     sp,
-    tidyr,
-    dplyr
+    tidyr
 Suggests:
     ggplot2,
     parallel,
@@ -27,6 +26,7 @@ Suggests:
     scales,
     data.table,
     knitr,
-    rmarkdown
+    rmarkdown,
+    dplyr
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
