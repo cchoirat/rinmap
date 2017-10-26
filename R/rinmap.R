@@ -267,7 +267,7 @@ combine_inmap_output <- function(path.out, pattern = NULL) {
   library(data.table)
   #list files for import, read in files
   files = list.files(path.out, full.names = T)
-  names.f = gsub(paste(pattern, '_linked_zip.csv', sep = '|'), '', 
+  names.f = gsub('_linked_zip.csv', '', 
                        list.files(path.out, full.names = F))
   names(files) <- names.f
   if (!is.null(pattern))
@@ -317,12 +317,16 @@ combine_inmap_output <- function(path.out, pattern = NULL) {
 plot_inmap <- function(read_inmap_d,
                        zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
                        legend_lims = c(-5, 5),
+                       plot.names = 'default',
                        path.plot = 'InMAP_plots',
-                       cores = 1) {
-  #check if required packages are installed
-  if (F %in% (c('sf', 'parallel', 'ggplot2', 'viridis', 'scales') %in% (.packages()))) {
-    stop("Required package missing! (need sf,parallel,ggplot2,viridis,scales)")
-  }
+                       cores = 1,
+                       gif.name = NULL) {
+  library(sf)
+  library(parallel)
+  library(ggplot2)
+  library(viridis)
+  library(scales)
+  library(data.table)
   
   #create directory if it does not exist
   if (!file.exists(path.plot))
@@ -330,17 +334,23 @@ plot_inmap <- function(read_inmap_d,
   
   #join with spatial zip data
   zips <- st_read(zcta_shapefile)
-  zips$GEOID10 <- as.character(zips$GEOID10)
-  im_j <- left_join(im, zips, by = c('ZIP' = 'GEOID10'))
+  zips$ZIP <- as.character(zips$GEOID10)
+  read_inmap_d <- merge( zips, read_inmap_d, by = c('ZIP'), all.y = T)
   
   #extract names from combined data table/sf object
+  names.unused <- c('ZCTA|ZIP|PO_NAME|STATE|ZIP_TYPE|ZCTA5CE10|AFFGEOID10|ALAND10|AWATER10|GEOID10|geometry')
   names.f <-
     names(read_inmap_d)[-grep(
-      c(
-        'ZCTA|ZIP|PO_NAME|STATE|ZIP_TYPE|ZCTA5CE10|AFFGEOID10|ALAND10|AWATER10|geometry'
-      ),
+      names.unused, 
       names(read_inmap_d)
     )]
+  if (plot.names[1] == 'default') {
+    names.use <- names.f
+  } else if (length(plot.names) != length(names.f)){
+    names.use <- names.f
+    warning('Length of names not equal to number of plots. Using default column names instead...')
+  } else names.use <- plot.names
+  setnames(read_inmap_d, names.f, names.use)
   
   #read in USA and state shapes
   cl <- makeCluster(cores)
@@ -370,11 +380,12 @@ plot_inmap <- function(read_inmap_d,
   )
   
   #create plotting object
-  ggplotter <- function(x, im_j, n, ll) {
-    x1 <- data.table(im_j)[, c('ZIP', n[x], 'geometry'), with = F]
+  ggplotter <- function(x, im_j, n, ll, pp) {
+    print(n[x])
+    x1 <- data.table(im_j)[,c('ZIP',n[x],'geometry'),with=F]
     setnames(x1, n[x], 'PM')
     usa.states <- map_data("state")
-    
+
     gg <- ggplot(data = x1, aes(fill = -PM, color = -PM)) +
       theme_bw() + labs(title = paste('InMAP exposure change - ', n[x], sep =
                                         '')) +
@@ -420,8 +431,9 @@ plot_inmap <- function(read_inmap_d,
         legend.direction = 'horizontal',
         strip.background = element_rect(fill = 'white')
       )
+    summary(gg)
     invisible(ggsave(
-      file.path('.', path.plot, paste('plot_', n[x], '.png', sep = '')),
+      file.path('.', pp, paste('plot_', n[x], '.png', sep = '')),
       gg,
       width = 13.5,
       height = 7.79,
@@ -430,8 +442,29 @@ plot_inmap <- function(read_inmap_d,
     return(gg)
   }
   out <-
-    parLapply(cl, seq_along(names.f), ggplotter, read_inmap_d, names.f, ll =
-                legend_lims) #
+    parLapply(cl   = cl, seq_along(names.use), #
+              ggplotter, 
+              im_j = read_inmap_d, 
+              n    = names.use, 
+              ll   = legend_lims,
+              pp   = path.plot) 
   stopCluster(cl)
+
+  #use magick library to giffify if desired
+  if (!is.null(gif.name)){
+    library(magrittr)
+    library(magick)
+
+    imgs <- image_read(file.path('.', path.plot, paste('plot_', names.use, '.png', sep = ''))) %>% 
+            image_crop(geometry = "4050x2000+0-224") %>% 
+            image_resize("1000x")
+
+    for (i in seq_along(imgs)){
+      imgs[i] <- image_annotate(imgs[i], text = names.use[i], location = '+600+60', size = 50)
+    }
+    imgs <- image_animate(imgs,fps=2,dispose='background') 
+    image_write(imgs,file.path('.', path.plot, paste(gif.name, '.gif', sep = '')))
+  }
+  
   return(out)
 }
