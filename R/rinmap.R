@@ -276,7 +276,7 @@ combine_inmap_output <- function(path.out, pattern = NULL) {
 
   im <-
     lapply(seq_along(files), function(x, f, n) {
-      fin <- fread(f[x])[, V1 := NULL]
+      fin <- data.table::fread(f[x])[, V1 := NULL]
       setnames(fin, 'PM25inMAP', n[x])
       fin
     }, files, names(files))
