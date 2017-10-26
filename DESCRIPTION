@@ -27,6 +27,8 @@ Suggests:
     data.table,
     knitr,
     rmarkdown,
-    dplyr
+    dplyr,
+    magrittr,
+    magick
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
