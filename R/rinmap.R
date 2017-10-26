@@ -264,6 +264,7 @@ create_input_facility_all_but_one <-
 #'
 #' @return A data frame of average PM2.5 values at the ZIP code level.
 combine_inmap_output <- function(path.out, pattern = NULL) {
+  library(data.table)
   #list files for import, read in files
   files = list.files(path.out, full.names = T)
   names.f = gsub(paste(pattern, '_linked_zip.csv', sep = '|'), '', 
@@ -276,7 +277,8 @@ combine_inmap_output <- function(path.out, pattern = NULL) {
 
   im <-
     lapply(seq_along(files), function(x, f, n) {
-      fin <- data.table::fread(f[x])[, V1 := NULL]
+      fin <- data.table::fread(f[x])
+      fin <- fin[,!(names(fin) == 'V1')]
       setnames(fin, 'PM25inMAP', n[x])
       fin
     }, files, names(files))
@@ -291,10 +293,10 @@ combine_inmap_output <- function(path.out, pattern = NULL) {
       ), im)
   
   #convert a ZIP code from 3-digit to 5-digit format
-  im[, ZIP := formatC(unlist(ZIP),
+  im$ZIP <-  formatC(unlist(im$ZIP),
                       width = 5,
                       format = "d",
-                      flag = "0")]
+                      flag = "0")
   
   return(im)
 }
