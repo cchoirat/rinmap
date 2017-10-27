@@ -417,19 +417,17 @@ plot_inmap <- function(read_inmap_d,
         direction = -1
       ) +
       theme(
-        legend.position = c(.25, .15),
+        plot.title = element_text(size = 16, hjust = 0.5),
+        axis.title = element_text(size = 24),
         axis.text = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         legend.title = element_blank(),
-        axis.title = element_text(size = 24),
+        legend.position = c(.25, .15),
         legend.text = element_text(size = 14),
         legend.background = element_rect(fill = 'transparent'),
-        strip.text = element_text(size = 16),
         legend.key.size = unit(.05, 'npc'),
-        plot.title = element_text(size = 16, hjust = 0.5),
         legend.direction = 'horizontal',
-        strip.background = element_rect(fill = 'white')
       )
     summary(gg)
     invisible(ggsave(
@@ -437,7 +435,7 @@ plot_inmap <- function(read_inmap_d,
       gg,
       width = 13.5,
       height = 7.79,
-      unit = 'in'
+      unit = 'cm'
     ))
     return(gg)
   }
@@ -455,12 +453,16 @@ plot_inmap <- function(read_inmap_d,
     library(magrittr)
     library(magick)
 
-    imgs <- image_read(file.path('.', path.plot, paste('plot_', names.use, '.png', sep = ''))) %>% 
-            image_crop(geometry = "4050x2000+0-224") %>% 
-            image_resize("1000x")
+    imgs <- image_read(file.path('.', 
+                                 path.plot, 
+                                 paste('plot_', names.use, '.png', sep = ''))) %>% 
+            image_crop(geometry = "x800+0-120") 
 
     for (i in seq_along(imgs)){
-      imgs[i] <- image_annotate(imgs[i], text = names.use[i], location = '+600+60', size = 50)
+      imgs[i] <- image_annotate(imgs[i], 
+                                text = names.use[i], 
+                                location = '+900+150', 
+                                size = 60)
     }
     imgs <- image_animate(imgs,fps=2,dispose='background') 
     image_write(imgs,file.path('.', path.plot, paste(gif.name, '.gif', sep = '')))
