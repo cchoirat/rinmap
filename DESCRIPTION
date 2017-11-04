@@ -2,8 +2,12 @@ Package: rinmap
 Type: Package
 Title: An R interface to inMAP
 Version: 0.1
-Date: 2017-10-21
+Date: 2017-10-25
 Author: person("Christine", "Choirat", email = "cchoirat@gmail.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Christine", "Choirat", role = c("aut", "cre")),
+    person("Lucas", "Henneman", role = "aut")
+    )
 Maintainer: Christine Choirat <cchoirat@gmail.com>
 Description: rinmap provides an R interface to inMAP (Intervention Model for Air Pollution, http://spatialmodel.com/inmap/)
 URL: https://github.com/cchoirat/rinmap
@@ -14,4 +18,17 @@ Depends:
     proj4,
     sp,
     tidyr
+Suggests:
+    ggplot2,
+    parallel,
+    sf,
+    viridis,
+    scales,
+    data.table,
+    knitr,
+    rmarkdown,
+    dplyr,
+    magrittr,
+    magick
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr
