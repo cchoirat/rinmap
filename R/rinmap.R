@@ -44,18 +44,31 @@ create_input_shapefile <- function(input_csv, path) {
 #' @param path Filepath where \code{inmap.toml} and \code{run.sh} are copied.
 #'
 #' @return This function does not return anything and is used for its side-effects.
-setup_files_inmap_run <- function(path) {
-  file.copy(
-    from = system.file("inmap.toml", package = "rinmap"),
-    to = path,
-    overwrite = TRUE
-  )
-  file.copy(
-    from = system.file("run.sh", package = "rinmap"),
-    to = path,
-    overwrite = TRUE
-  )
-  dir.create(path = file.path(path, "emis"), showWarnings = FALSE)
+setup_files_inmap_run <- function(path, nest) {
+  if( nest == T){
+    file.copy(
+      from = system.file("inmap.toml", package = "rinmap"),
+      to = path,
+      overwrite = TRUE
+    )
+    file.copy(
+      from = system.file("run.sh", package = "rinmap"),
+      to = path,
+      overwrite = TRUE
+    )
+  } else {
+    file.copy(
+      from = system.file("inmap_nonest.toml", package = "rinmap"),
+      to = path,
+      overwrite = TRUE
+    )
+    file.copy(
+      from = system.file("run_nonest.sh", package = "rinmap"),
+      to = path,
+      overwrite = TRUE
+    )
+  }
+    dir.create(path = file.path(path, "emis"), showWarnings = FALSE)
 }
 
 #' Link inMAP output at the ZIP code level.
@@ -100,13 +113,20 @@ zip_code_linkage <-
 #' @return A data frame with ZIP code level average PM2.5 values.
 run_inmap <- function(input_csv,
                       zcta_shapefile = "~/shared_space/ci3_nsaph/software/inmap/zcta/cb_2015_us_zcta510_500k.shp",
-                      crosswalk_csv = "~/shared_space/ci3_nsaph/software/inmap/crosswalk/Zip_to_ZCTA_crosswalk_2015_JSI.csv") {
+                      crosswalk_csv = "~/shared_space/ci3_nsaph/software/inmap/crosswalk/Zip_to_ZCTA_crosswalk_2015_JSI.csv",
+                      nest = T) {
   create_input_shapefile(input_csv, path = path)
-  setup_files_inmap_run(path = path)
-  setwd(path)
-  system("chmod +x run.sh") # make run.sh executable
-  system("./run.sh")
-  link <- zip_code_linkage(
+    setup_files_inmap_run(path = path, nest = nest)
+    setwd(path)
+  if( nest == T){
+    system("chmod +x run.sh") # make run.sh executable
+    system("./run.sh")
+  } else {
+    system("chmod +x run_nonest.sh") # make run.sh executable
+    system("./run_nonest.sh")
+    
+  }
+    link <- zip_code_linkage(
     output_shapefile = "output/ptegu.shp",
     zcta_shapefile = zcta_shapefile,
     crosswalk_csv = crosswalk_csv
